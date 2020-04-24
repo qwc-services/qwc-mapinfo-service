@@ -23,14 +23,37 @@ Environment variables:
 | `INFO_TITLE`        | Display title                | `gemeinde`                                             |
 
 
-Usage/Development
------------------
+Usage
+-----
 
 API documentation:
 
     http://localhost:5016/api/
 
+
+Development
+-----------
+
+Create a virtual environment:
+
+    virtualenv --python=/usr/bin/python3 .venv
+
+Activate virtual environment:
+
+    source .venv/bin/activate
+
+Install requirements:
+
+    pip install -r requirements.txt
+
+Start local service:
+
+    CONFIG_PATH=/PATH/TO/CONFIGS/ python server.py
+
+
 Testing
 -------
 
-See `../testing/README.md`.
+Run all tests:
+
+    python test.py
