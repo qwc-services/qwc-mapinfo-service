@@ -1,0 +1,23 @@
+{
+  "$schema":"http://json-schema.org/draft-07/schema#",
+  "$id":"https://raw.githubusercontent.com/qwc-services/qwc-mapinfo-service/master/schemas/qwc-mapinfo-service.json",
+  "title":"QWC Mapinfo Service",
+  "type":"object",
+  "properties":{
+    "$schema":{"title":"JSON Schema","description":"Reference to JSON schema of this config","type":"string","format":"uri","default":"https://raw.githubusercontent.com/qwc-services/qwc-mapinfo-service/master/schemas/qwc-mapinfo-service.json"},
+    "service":{"title":"Service name","type":"string","const":"mapinfo"},
+    "config":{
+      "title":"Config options",
+      "type":"object",
+      "properties":{
+        "db_url":{"description":"DB connection for info queries","type":"string"},
+        "info_table":{"description":"Table to use","type":"string"},
+        "info_geom_col":{"description":"Geometry column in table","type":"string"},
+        "info_display_col":{"description":"Display text column in table","type":"string"},
+        "info_title":{"description":"Display title","type":"string"}
+      },
+      "required":["db_url","info_table","info_geom_col","info_display_col","info_title"]
+    }
+  },
+  "required":["service","config"]
+}

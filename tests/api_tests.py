@@ -37,7 +37,7 @@ class ApiTestCase(unittest.TestCase):
             self.assertIn(entry[1], entries, 'Unexpected result')
 
     # submit query
-    def test_permalink(self):
+    def test_mapinfo(self):
         response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (3108, 206), 'crs': 'EPSG:2056'}))
         self.assertEqual(200, response.status_code, "Status code is not OK")
         self.check_response(response, ['Gemeinde 1'])
