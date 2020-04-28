@@ -104,6 +104,18 @@ class MapInfo(Resource):
         return jsonify({"results": info_result})
 
 
+""" readyness probe endpoint """
+@app.route("/ready", methods=['GET'])
+def ready():
+    return jsonify({"status": "OK"})
+
+
+""" liveness probe endpoint """
+@app.route("/healthz", methods=['GET'])
+def healthz():
+    return jsonify({"status": "OK"})
+
+
 # local webserver
 if __name__ == "__main__":
     from flask_cors import CORS
