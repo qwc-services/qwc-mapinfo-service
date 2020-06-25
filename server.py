@@ -4,7 +4,7 @@ import re
 import sys
 
 from flask import Flask, request, jsonify
-from flask_restplus import Resource, fields, reqparse
+from flask_restx import Resource, fields, reqparse
 import requests
 
 from sqlalchemy.sql import text as sql_text
