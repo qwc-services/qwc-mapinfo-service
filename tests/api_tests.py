@@ -13,10 +13,10 @@ class ApiTestCase(unittest.TestCase):
     """Test case for server API"""
 
     def setUp(self):
-        os.environ["INFO_TABLE"] = "test_mapinfo"
-        os.environ["INFO_GEOM_COL"] = "geometrie"
-        os.environ["INFO_DISPLAY_COL"] = "gemeindename"
-        os.environ["INFO_TITLE"] = "Gemeinde"
+        os.environ["INFO_TABLE"] = "qwc_geodb.ne_10m_admin_0_countries"
+        os.environ["INFO_GEOM_COL"] = "wkb_geometry"
+        os.environ["INFO_DISPLAY_COL"] = "name"
+        os.environ["INFO_TITLE"] = "Country"
 
         server.app.testing = True
         self.app = FlaskClient(server.app, Response)
@@ -33,15 +33,15 @@ class ApiTestCase(unittest.TestCase):
 
         for entry in response_data['results']:
             self.assertEqual(2, len(entry), 'Response result does not have two entries')
-            self.assertEqual('Gemeinde', entry[0], 'Response result title mismatch')
+            self.assertEqual('Country', entry[0], 'Response result title mismatch')
             self.assertIn(entry[1], entries, 'Unexpected result')
 
     # submit query
     def test_mapinfo(self):
-        response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (3108, 206), 'crs': 'EPSG:2056'}))
+        response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (950820, 6003926), 'crs': 'EPSG:3857'}))
         self.assertEqual(200, response.status_code, "Status code is not OK")
-        self.check_response(response, ['Gemeinde 1'])
+        self.check_response(response, ['Switzerland'])
 
-        response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (15685,34), 'crs': 'EPSG:2056'}))
+        response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (1157945, 6630316), 'crs': 'EPSG:3857'}))
         self.assertEqual(200, response.status_code, "Status code is not OK")
-        self.check_response(response, ['Gemeinde 2'])
+        self.check_response(response, ['Germany'])
