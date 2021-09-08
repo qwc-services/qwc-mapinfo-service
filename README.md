@@ -1,5 +1,5 @@
 [![](https://github.com/qwc-services/qwc-mapinfo-service/workflows/build/badge.svg)](https://github.com/qwc-services/qwc-mapinfo-service/actions)
-[![](https://img.shields.io/docker/pulls/sourcepole/qwc-mapinfo-service)](https://hub.docker.com/r/sourcepole/qwc-mapinfo-service)
+[![docker](https://img.shields.io/docker/v/sourcepole/qwc-mapinfo-service?label=Docker%20image&sort=semver)](https://hub.docker.com/r/sourcepole/qwc-mapinfo-service)
 
 QWC MapInfo Service
 ===================
