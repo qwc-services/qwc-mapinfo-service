@@ -39,6 +39,51 @@
         "info_title": {
           "description": "Display title",
           "type": "string"
+        },
+        "info_where": {
+          "description": "Additional WHERE query",
+          "type": "string"
+        },
+        "queries": {
+          "title": "Info queries",
+          "type": "array",
+          "items": {
+            "title": "Query",
+            "type": "object",
+            "properties": {
+              "db_url": {
+                "description": "DB connection for info queries",
+                "type": "string"
+              },
+              "info_table": {
+                "description": "Table to use",
+                "type": "string"
+              },
+              "info_geom_col": {
+                "description": "Geometry column in table",
+                "type": "string"
+              },
+              "info_display_col": {
+                "description": "Display text column in table",
+                "type": "string"
+              },
+              "info_title": {
+                "description": "Display title",
+                "type": "string"
+              },
+              "info_where": {
+                "description": "Additional WHERE query",
+                "type": "string"
+              }
+            },
+            "required": [
+              "db_url",
+              "info_table",
+              "info_geom_col",
+              "info_display_col",
+              "info_title"
+            ]
+          }
         }
       },
       "required": [

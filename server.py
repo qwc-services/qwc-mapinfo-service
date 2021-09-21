@@ -68,13 +68,6 @@ class MapInfo(Resource):
         config_handler = RuntimeConfig("mapinfo", app.logger)
         config = config_handler.tenant_config(tenant)
 
-        db = db_engine.db_engine(config.get('db_url'))
-        table = config.get('info_table')
-        info_geom_col = config.get('info_geom_col')
-        info_display_col = config.get('info_display_col')
-        info_title = config.get('info_title')
-
-
         try:
             pos = args['pos'].split(',')
             pos = [float(pos[0]), float(pos[1])]
@@ -86,23 +79,50 @@ class MapInfo(Resource):
         except:
             return jsonify({"error": "Invalid projection specified"})
 
-        conn = db.connect()
+        info_result = []
+        conns = {}
+
+        queries = config.get('queries')
+        if queries is not None:
+            for query in queries:
+                info_result.append(self.__process_query(conns, query, pos, srid))
+        else:
+            info_result.append(self.__process_query(conns, config, pos, srid))
+
+        for conn in conns.values():
+            conn.close()
+
+        return jsonify({"results": info_result})
+
+    def __process_query(self, conns, query, pos, srid):
+
+        db_url = query.get('db_url')
+        if not db_url in conns:
+            db = db_engine.db_engine(db_url)
+            conns[db_url] = db.connect()
+        conn = conns[db_url]
+
+        table = query.get('info_table')
+        info_geom_col = query.get('info_geom_col')
+        info_display_col = query.get('info_display_col')
+        info_title = query.get('info_title')
+        info_where = query.get('info_where')
+
+        extra_where = ""
+        if info_where is not None:
+            extra_where = " AND (" + info_where + ")"
 
         sql = sql_text("""
             SELECT {display}
             FROM {table}
-            WHERE ST_contains({table}.{geom}, ST_SetSRID(ST_Point(:x, :y), :srid))
+            WHERE ST_contains({table}.{geom}, ST_SetSRID(ST_Point(:x, :y), :srid)){extra_where}
             LIMIT 1;
-        """.format(display=info_display_col, geom=info_geom_col, table=table))
+        """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
 
         result = conn.execute(sql, x=pos[0], y=pos[1], srid=srid)
-        info_result = []
-        for row in result:
-            info_result = [[info_title, row[info_display_col]]]
+        row = result.fetchone()
 
-        conn.close()
-
-        return jsonify({"results": info_result})
+        return [info_title, row[info_display_col]]
 
 
 """ readyness probe endpoint """
