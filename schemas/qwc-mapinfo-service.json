@@ -86,12 +86,21 @@
           }
         }
       },
-      "required": [
-        "db_url",
-        "info_table",
-        "info_geom_col",
-        "info_display_col",
-        "info_title"
+      "oneOf": [
+        {
+          "required": [
+            "db_url",
+            "info_table",
+            "info_geom_col",
+            "info_display_col",
+            "info_title"
+          ]
+        },
+        {
+          "required": [
+            "queries"
+          ]
+        }
       ]
     }
   },
