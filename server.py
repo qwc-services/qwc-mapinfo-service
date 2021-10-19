@@ -85,9 +85,13 @@ class MapInfo(Resource):
         queries = config.get('queries')
         if queries is not None:
             for query in queries:
-                info_result.append(self.__process_query(conns, query, pos, srid))
+                result = self.__process_query(conns, query, pos, srid)
+                if result:
+                    info_result.append(result)
         else:
-            info_result.append(self.__process_query(conns, config, pos, srid))
+            result = self.__process_query(conns, config, pos, srid)
+            if result:
+                info_result.append(result)
 
         for conn in conns.values():
             conn.close()
@@ -121,6 +125,8 @@ class MapInfo(Resource):
 
         result = conn.execute(sql, x=pos[0], y=pos[1], srid=srid)
         row = result.fetchone()
+        if not row:
+            return None
 
         return [info_title, row[info_display_col]]
 
