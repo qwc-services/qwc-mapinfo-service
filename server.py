@@ -84,8 +84,8 @@ class MapInfo(Resource):
 
         queries = config.get('queries')
         if queries is not None:
-            for query in queries:
-                result = self.__process_query(conns, query, pos, srid)
+            for config in queries:
+                result = self.__process_query(conns, config, pos, srid)
                 if result:
                     info_result.append(result)
         else:
@@ -98,34 +98,38 @@ class MapInfo(Resource):
 
         return jsonify({"results": info_result})
 
-    def __process_query(self, conns, query, pos, srid):
+    def __process_query(self, conns, config, pos, srid):
 
-        db_url = query.get('db_url')
+        db_url = config.get('db_url')
         if not db_url in conns:
             db = db_engine.db_engine(db_url)
             conns[db_url] = db.connect()
         conn = conns[db_url]
 
-        table = query.get('info_table')
-        info_geom_col = query.get('info_geom_col')
-        info_display_col = query.get('info_display_col')
-        info_title = query.get('info_title')
-        info_where = query.get('info_where')
+        info_title = config.get('info_title')
+        if config.get('info_sql') is not None:
+             sql = sql_text(config.get('info_sql'))
+             info_display_col = 0
+        else:
+            table = config.get('info_table')
+            info_geom_col = config.get('info_geom_col')
+            info_display_col = config.get('info_display_col')
+            info_where = config.get('info_where')
 
-        extra_where = ""
-        if info_where is not None:
-            extra_where = " AND (" + info_where + ")"
+            extra_where = ""
+            if info_where is not None:
+                extra_where = " AND (" + info_where + ")"
 
-        sql = sql_text("""
-            SELECT {display}
-            FROM {table}
-            WHERE ST_contains({table}.{geom}, ST_SetSRID(ST_Point(:x, :y), :srid)){extra_where}
-            LIMIT 1;
-        """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
+            sql = sql_text("""
+                SELECT {display}
+                FROM {table}
+                WHERE ST_contains({table}.{geom}, ST_SetSRID(ST_Point(:x, :y), :srid)){extra_where}
+                LIMIT 1;
+            """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
 
         result = conn.execute(sql, x=pos[0], y=pos[1], srid=srid)
         row = result.fetchone()
-        if not row:
+        if row is None:
             return None
 
         return [info_title, row[info_display_col]]

@@ -64,9 +64,7 @@ Examples:
       },
       {
         "db_url": "postgresql:///?service=qwc_geodb",
-        "info_table": "qwc_geodb.ne_10m_admin_0_countries",
-        "info_geom_col": "wkb_geometry",
-        "info_display_col": "type",
+        "info_sql": "SELECT type FROM qwc_geodb.ne_10m_admin_0_countries WHERE ST_contains(wkb_geometry, ST_SetSRID(ST_Point(:x, :y), :srid)) LIMIT 1",
         "info_title": "Type"
       }
     ]

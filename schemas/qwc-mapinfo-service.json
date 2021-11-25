@@ -74,14 +74,29 @@
               "info_where": {
                 "description": "Additional WHERE query",
                 "type": "string"
+              },
+              "info_sql": {
+                "description": "SQL query text",
+                "type": "string"
               }
             },
-            "required": [
-              "db_url",
-              "info_table",
-              "info_geom_col",
-              "info_display_col",
-              "info_title"
+            "oneOf": [
+              {
+                "required": [
+                  "db_url",
+                  "info_table",
+                  "info_geom_col",
+                  "info_display_col",
+                  "info_title"
+                ]
+              },
+              {
+                "required": [
+                  "db_url",
+                  "info_sql",
+                  "info_title"
+                ]
+              }
             ]
           }
         }
@@ -93,6 +108,13 @@
             "info_table",
             "info_geom_col",
             "info_display_col",
+            "info_title"
+          ]
+        },
+        {
+          "required": [
+            "db_url",
+            "info_sql",
             "info_title"
           ]
         },
