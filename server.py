@@ -12,8 +12,7 @@ from sqlalchemy.sql import text as sql_text
 from qwc_services_core.api import Api
 from qwc_services_core.api import CaseInsensitiveArgument
 from qwc_services_core.app import app_nocache
-from flask_jwt_extended import jwt_optional, get_jwt_identity
-from qwc_services_core.jwt import jwt_manager
+from qwc_services_core.auth import auth_manager, optional_auth, get_identity
 from qwc_services_core.database import DatabaseEngine
 from qwc_services_core.tenant_handler import TenantHandler
 from qwc_services_core.runtime_config import RuntimeConfig
@@ -33,7 +32,7 @@ app.config.SWAGGER_UI_DOC_EXPANSION = 'list'
 # disable verbose 404 error message
 app.config['ERROR_404_HELP'] = False
 
-auth = jwt_manager(app, api)
+auth = auth_manager(app, api)
 
 tenant_handler = TenantHandler(app.logger)
 
@@ -56,7 +55,7 @@ class MapInfo(Resource):
     @api.param('pos', 'Map position: x,y')
     @api.param('crs', 'CRS of the map position coordinates')
     @api.expect(mapinfo_parser)
-    @jwt_optional
+    @optional_auth
     def get(self):
         """Submit query
 
