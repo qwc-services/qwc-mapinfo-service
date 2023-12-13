@@ -126,7 +126,7 @@ class MapInfo(Resource):
                 LIMIT 1;
             """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
 
-        result = conn.execute(sql, x=pos[0], y=pos[1], srid=srid)
+        result = conn.execute(sql, {"x": pos[0], "y": pos[1], "srid": srid}).mappings()
         row = result.fetchone()
         if row is None:
             return None
