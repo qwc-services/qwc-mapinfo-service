@@ -90,7 +90,7 @@ Usage
 
 Run as
 
-    python server.py
+    python src/server.py
 
 API documentation:
 
@@ -135,7 +135,7 @@ Install requirements:
 
 Start local service:
 
-    CONFIG_PATH=/PATH/TO/CONFIGS/ python server.py
+    CONFIG_PATH=/PATH/TO/CONFIGS/ python src/server.py
 
 
 Testing
