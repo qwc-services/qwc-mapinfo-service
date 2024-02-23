@@ -13,11 +13,6 @@ class ApiTestCase(unittest.TestCase):
     """Test case for server API"""
 
     def setUp(self):
-        os.environ["INFO_TABLE"] = "qwc_geodb.ne_10m_admin_0_countries"
-        os.environ["INFO_GEOM_COL"] = "wkb_geometry"
-        os.environ["INFO_DISPLAY_COL"] = "name"
-        os.environ["INFO_TITLE"] = "Country"
-
         server.app.testing = True
         self.app = FlaskClient(server.app, Response)
         JWTManager(server.app)
@@ -31,17 +26,17 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn('results', response_data, 'Response has no results field')
         self.assertEqual(len(entries), len(response_data['results']), 'Response result count mismatch')
 
-        for entry in response_data['results']:
+        for idx, entry in enumerate(response_data['results']):
             self.assertEqual(2, len(entry), 'Response result does not have two entries')
-            self.assertEqual('Country', entry[0], 'Response result title mismatch')
-            self.assertIn(entry[1], entries, 'Unexpected result')
+            self.assertEqual(entries[idx][0], entry[0], 'Response result title mismatch')
+            self.assertIn(entries[idx][1], entry[1], 'Unexpected result')
 
     # submit query
     def test_mapinfo(self):
         response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (950820, 6003926), 'crs': 'EPSG:3857'}))
         self.assertEqual(200, response.status_code, "Status code is not OK")
-        self.check_response(response, ['Switzerland'])
+        self.check_response(response, [('Country', 'Switzerland'), ('Type', 'Sovereign country')])
 
         response = self.app.get('/?' + urlencode({'pos': "%d,%d" % (1157945, 6630316), 'crs': 'EPSG:3857'}))
         self.assertEqual(200, response.status_code, "Status code is not OK")
-        self.check_response(response, ['Germany'])
+        self.check_response(response, [('Country', 'Germany'), ('Type', 'Sovereign country')])
