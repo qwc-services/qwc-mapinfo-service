@@ -108,7 +108,6 @@ class MapInfo(Resource):
         info_title = config.get('info_title')
         if config.get('info_sql') is not None:
              sql = sql_text(config.get('info_sql'))
-             info_display_col = 0
         else:
             table = config.get('info_table')
             info_geom_col = config.get('info_geom_col')
@@ -131,7 +130,10 @@ class MapInfo(Resource):
         if row is None:
             return None
 
-        return [info_title, row[info_display_col]]
+        if config.get('info_sql') is not None:
+            return [info_title, row[list(result.keys())[0]]]
+        else:
+            return [info_title, row[info_display_col]]
 
 
 """ readyness probe endpoint """
