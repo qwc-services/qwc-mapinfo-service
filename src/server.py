@@ -79,31 +79,21 @@ class MapInfo(Resource):
             return jsonify({"error": "Invalid projection specified"})
 
         info_result = []
-        conns = {}
 
         queries = config.get('queries')
         if queries is not None:
             for config in queries:
-                result = self.__process_query(conns, config, pos, srid)
+                result = self.__process_query(config, pos, srid)
                 if result:
                     info_result.append(result)
         else:
-            result = self.__process_query(conns, config, pos, srid)
+            result = self.__process_query(config, pos, srid)
             if result:
                 info_result.append(result)
 
-        for conn in conns.values():
-            conn.close()
-
         return jsonify({"results": info_result})
 
-    def __process_query(self, conns, config, pos, srid):
-
-        db_url = config.get('db_url')
-        if not db_url in conns:
-            db = db_engine.db_engine(db_url)
-            conns[db_url] = db.connect()
-        conn = conns[db_url]
+    def __process_query(self, config, pos, srid):
 
         info_title = config.get('info_title')
         if config.get('info_sql') is not None:
@@ -125,15 +115,19 @@ class MapInfo(Resource):
                 LIMIT 1;
             """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
 
-        result = conn.execute(sql, {"x": pos[0], "y": pos[1], "srid": srid}).mappings()
-        row = result.fetchone()
-        if row is None:
-            return None
+        db_url = config.get('db_url')
+        db = db_engine.db_engine(db_url)
+        with db.connect() as conn:
+            result = conn.execute(sql, {"x": pos[0], "y": pos[1], "srid": srid}).mappings()
+            row = result.fetchone()
+            if row is None:
+                return_value = None
+            if config.get('info_sql') is not None:
+                return_value = [info_title, row[list(result.keys())[0]]]
+            else:
+                return_value = [info_title, row[info_display_col]]
 
-        if config.get('info_sql') is not None:
-            return [info_title, row[list(result.keys())[0]]]
-        else:
-            return [info_title, row[info_display_col]]
+        return return_value
 
 
 """ readyness probe endpoint """
