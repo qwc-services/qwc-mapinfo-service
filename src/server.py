@@ -122,7 +122,7 @@ class MapInfo(Resource):
             row = result.fetchone()
             if row is None:
                 return_value = None
-            if config.get('info_sql') is not None:
+            elif config.get('info_sql') is not None:
                 return_value = [info_title, row[list(result.keys())[0]]]
             else:
                 return_value = [info_title, row[info_display_col]]
