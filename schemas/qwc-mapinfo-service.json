@@ -38,7 +38,10 @@
         },
         "info_title": {
           "description": "Display title",
-          "type": "string"
+          "type": ["string", "array"],
+          "items": {
+            "type": "string"
+          }
         },
         "info_where": {
           "description": "Additional WHERE query",
