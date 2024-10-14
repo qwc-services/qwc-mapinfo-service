@@ -80,21 +80,16 @@ class MapInfo(Resource):
 
         info_result = []
 
-        queries = config.get('queries')
-        if queries is not None:
-            for config in queries:
-                result = self.__process_query(config, pos, srid)
-                if result:
-                    info_result.append(result)
-        else:
+        queries = config.get('queries') or [config]
+
+        for config in queries:
             result = self.__process_query(config, pos, srid)
             if result:
-                info_result.append(result)
+                info_result.extend(result)
 
         return jsonify({"results": info_result})
 
     def __process_query(self, config, pos, srid):
-
         info_title = config.get('info_title')
         if config.get('info_sql') is not None:
              sql = sql_text(config.get('info_sql'))
@@ -123,9 +118,11 @@ class MapInfo(Resource):
             if row is None:
                 return_value = None
             elif config.get('info_sql') is not None:
-                return_value = [info_title, row[list(result.keys())[0]]]
+                if not isinstance(info_title, list):
+                    info_title = [info_title]
+                return_value = [list(t) for t in zip(info_title, row.values())]
             else:
-                return_value = [info_title, row[info_display_col]]
+                return_value = [[info_title, row[info_display_col]]]
 
         return return_value
 
