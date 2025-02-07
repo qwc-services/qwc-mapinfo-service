@@ -94,7 +94,7 @@ class MapInfo(Resource):
         if config.get('info_sql') is not None:
              sql = sql_text(config.get('info_sql'))
         else:
-            table = config.get('info_table')
+            schema, table = ("public." + config.get('info_table')).split(".")[-2:]
             info_geom_col = config.get('info_geom_col')
             info_display_col = config.get('info_display_col')
             info_where = config.get('info_where')
@@ -105,15 +105,22 @@ class MapInfo(Resource):
 
             sql = sql_text("""
                 SELECT {display}
-                FROM {table}
-                WHERE ST_contains({table}.{geom}, ST_SetSRID(ST_Point(:x, :y), :srid)){extra_where}
+                FROM {schema}.{table}
+                WHERE ST_contains({schema}.{table}.{geom}, ST_Transform(ST_SetSRID(ST_Point(:x, :y), :srid), Find_SRID('{schema}', '{table}', '{geom}'))){extra_where}
                 LIMIT 1;
-            """.format(display=info_display_col, geom=info_geom_col, table=table, extra_where=extra_where))
+            """.format(display=info_display_col, geom=info_geom_col, schema=schema, table=table, extra_where=extra_where))
 
         db_url = config.get('db_url')
         db = db_engine.db_engine(db_url)
         with db.connect() as conn:
-            result = conn.execute(sql, {"x": pos[0], "y": pos[1], "srid": srid}).mappings()
+            params = {"x": pos[0], "y": pos[1], "srid": srid}
+            app.logger.debug(f"info query: {sql}")
+            app.logger.debug(f"params: {params}")
+
+            try:
+                result = conn.execute(sql, params).mappings()
+            except:
+                return None
             row = result.fetchone()
             if row is None:
                 return_value = None
