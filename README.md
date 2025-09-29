@@ -122,7 +122,7 @@ Example:
     {
       "role": "public",
       "permissions": {
-        "mapinfo_queries": [
+        "mapinfo_query": [
           "country",
           "type",
           "region"
@@ -132,7 +132,7 @@ Example:
     {
       "role": "demo",
       "permissions": {
-        "mapinfo_queries": []
+        "mapinfo_query": []
       }
     }
   ]
