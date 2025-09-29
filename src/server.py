@@ -65,9 +65,8 @@ class MapInfo(Resource):
 
         permissions_handler = PermissionsReader(tenant, app.logger)
         permitted_queries = permissions_handler.resource_permissions(
-            'mapinfo_queries', get_identity()
+            'mapinfo_query', get_identity()
         )
-        all_queries_permitted = '*' in permitted_queries
 
         try:
             pos = args['pos'].split(',')
@@ -85,8 +84,7 @@ class MapInfo(Resource):
         queries = config.get('queries') or [config]
 
         # filter queries by permissions
-        if not all_queries_permitted:
-            queries = [q for q in queries if q.get('info_id') in permitted_queries]
+        queries = [q for q in queries if q.get('info_id') in permitted_queries]
 
         for config in queries:
             result = self.__process_query(config, pos, srid)
