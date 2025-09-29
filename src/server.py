@@ -1,22 +1,16 @@
-from io import BytesIO
 import re
-import sys
 
-from flask import Flask, request, jsonify
-from flask_restx import Resource, fields, reqparse
-import requests
-
-from sqlalchemy.sql import text as sql_text
-
-from qwc_services_core.api import Api
-from qwc_services_core.api import CaseInsensitiveArgument
+from flask import Flask, jsonify
+from flask_restx import reqparse, Resource
+from qwc_services_core.api import Api, CaseInsensitiveArgument
 from qwc_services_core.app import app_nocache
-from qwc_services_core.auth import auth_manager, optional_auth
+from qwc_services_core.auth import auth_manager, get_identity, optional_auth
 from qwc_services_core.database import DatabaseEngine
+from qwc_services_core.permissions_reader import PermissionsReader
+from qwc_services_core.runtime_config import RuntimeConfig
 from qwc_services_core.tenant_handler import (
     TenantHandler, TenantPrefixMiddleware, TenantSessionInterface)
-from qwc_services_core.runtime_config import RuntimeConfig
-
+from sqlalchemy.sql import text as sql_text
 
 # Flask application
 app = Flask(__name__)
@@ -69,6 +63,13 @@ class MapInfo(Resource):
         config_handler = RuntimeConfig("mapinfo", app.logger)
         config = config_handler.tenant_config(tenant)
 
+        permissions_handler = PermissionsReader(tenant, app.logger)
+        permitted_queries = permissions_handler.resource_permissions(
+            'mapinfo_query', get_identity()
+        )
+        # Permit queries without info_id (i.e info_id = None)
+        permitted_queries.append(None)
+
         try:
             pos = args['pos'].split(',')
             pos = [float(pos[0]), float(pos[1])]
@@ -83,6 +84,9 @@ class MapInfo(Resource):
         info_result = []
 
         queries = config.get('queries') or [config]
+
+        # filter queries by permissions
+        queries = [q for q in queries if q.get('info_id') in permitted_queries]
 
         for config in queries:
             result = self.__process_query(config, pos, srid)

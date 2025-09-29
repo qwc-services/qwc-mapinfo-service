@@ -29,7 +29,8 @@ Examples:
     "info_table": "qwc_geodb.ne_10m_admin_0_countries",
     "info_geom_col": "wkb_geometry",
     "info_display_col": "name",
-    "info_title": "Country"
+    "info_title": "Country",
+    "info_id": "country"
   }
 }
 ```
@@ -44,6 +45,7 @@ Examples:
     "info_geom_col": "wkb_geometry",
     "info_display_col": "name",
     "info_title": "Country",
+    "info_id": "country",
     "info_where": "pop_est > 600000"
   }
 }
@@ -60,17 +62,20 @@ Examples:
         "info_table": "qwc_geodb.ne_10m_admin_0_countries",
         "info_geom_col": "wkb_geometry",
         "info_display_col": "name",
-        "info_title": "Country"
+        "info_title": "Country",
+        "info_id": "country"
       },
       {
         "db_url": "postgresql:///?service=qwc_geodb",
         "info_sql": "SELECT type FROM qwc_geodb.ne_10m_admin_0_countries WHERE ST_contains(wkb_geometry, ST_SetSRID(ST_Point(:x, :y), :srid)) LIMIT 1",
-        "info_title": "Type"
+        "info_title": "Type",
+        "info_id": "type"
       },
       {
         "db_url": "postgresql:///?service=qwc_geodb",
         "info_sql": "SELECT abbrev, postal, subregion FROM qwc_geodb.ne_10m_admin_0_countries WHERE ST_contains(wkb_geometry, ST_SetSRID(ST_Point(:x, :y), :srid)) LIMIT 1",
-        "info_title": ["Abbreviation", "Postal Code", "Subregion"]
+        "info_title": ["Abbreviation", "Postal Code", "Subregion"],
+        "info_id": "region"
       }
     ]
   }
@@ -88,6 +93,52 @@ Config options in the config file can be overridden by equivalent uppercase envi
 | `INFO_GEOM_COL`     | Geometry column in table     |
 | `INFO_DISPLAY_COL`  | Display text column in table |
 | `INFO_TITLE`        | Display title                |
+
+
+### Permissions
+
+
+* [JSON schema](https://github.com/qwc-services/qwc-services-core/blob/master/schemas/qwc-services-permissions.json)
+* File location: `$CONFIG_PATH/<tenant>/permissions.json`
+
+Example:
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/qwc-services/qwc-services-core/master/schemas/qwc-services-permissions.json",
+  "users": [
+    {
+      "name": "demo",
+      "groups": ["demo"],
+      "roles": []
+    }
+  ],
+  "groups": [
+    {
+      "name": "demo",
+      "roles": ["demo"]
+    }
+  ],
+  "roles": [
+    {
+      "role": "public",
+      "permissions": {
+        "mapinfo_query": [
+          "country",
+          "type",
+          "region"
+        ]
+      }
+    },
+    {
+      "role": "demo",
+      "permissions": {
+        "mapinfo_query": []
+      }
+    }
+  ]
+}
+```
+
 
 
 Usage
