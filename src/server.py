@@ -67,6 +67,8 @@ class MapInfo(Resource):
         permitted_queries = permissions_handler.resource_permissions(
             'mapinfo_query', get_identity()
         )
+        # Permit queries without info_id (i.e info_id = None)
+        permitted_queries.append(None)
 
         try:
             pos = args['pos'].split(',')
