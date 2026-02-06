@@ -1,3 +1,4 @@
+import os
 import re
 
 from flask import Flask, jsonify
@@ -156,4 +157,4 @@ def healthz():
 if __name__ == "__main__":
     from flask_cors import CORS
     CORS(app)
-    app.run(host='localhost', port=5016, debug=True)
+    app.run(host='localhost', port=os.environ.get("FLASK_RUN_PORT", 5000), debug=True)
