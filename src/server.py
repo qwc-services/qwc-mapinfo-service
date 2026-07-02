@@ -15,6 +15,7 @@ from sqlalchemy.sql import text as sql_text
 
 # Flask application
 app = Flask(__name__)
+app.config['RESTX_NO_DEFAULT_ROOT_RULE'] = True
 app_nocache(app)
 api = Api(app, version='1.0', title='MapInfo service API',
           description="""API for QWC MapInfo service.
